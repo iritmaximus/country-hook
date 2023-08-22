@@ -16,11 +16,30 @@ const useField = (type) => {
 }
 
 const useCountry = (name) => {
-  const [country, setCountry] = useState(null)
+  const [country, setCountry] = useState(null);
+  const baseUrl = "https://studies.cs.helsinki.fi/restcountries/api/name/";
 
-  useEffect(() => {})
+  useEffect(() => {
+    const fetchCountry = async () => {
+      if (!name) {
+        console.warn("Name not set");
+        return;
+      }
 
-  return country
+      try {
+        const result = await axios.get(baseUrl + name);
+        console.log({...result, found: true});
+        setCountry({...result, found: true});
+      } catch {
+        console.error("Not found");
+        setCountry({found: false});
+      }
+    }
+    fetchCountry();
+  }, [name]);
+
+  return country;
+
 }
 
 const Country = ({ country }) => {
@@ -35,13 +54,12 @@ const Country = ({ country }) => {
       </div>
     )
   }
-
   return (
     <div>
-      <h3>{country.data.name} </h3>
+      <h3>{country.data.name.common} </h3>
       <div>capital {country.data.capital} </div>
       <div>population {country.data.population}</div> 
-      <img src={country.data.flag} height='100' alt={`flag of ${country.data.name}`}/>  
+      <img src={country.data.flags.png} height='100' alt={`flag of ${country.data.name}`}/>  
     </div>
   )
 }
@@ -53,7 +71,7 @@ const App = () => {
 
   const fetch = (e) => {
     e.preventDefault()
-    setName(nameInput.value)
+    setName(nameInput.value);
   }
 
   return (
